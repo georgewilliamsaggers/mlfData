@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mlfSavings.local/schemas/integration_clients.json",
+  "title": "partner_schema.integration_clients",
+  "description": "Row shape for the integration_clients view (PostgreSQL types mapped for typical node-pg / JSON output).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["integer", "null"],
+      "description": "integer"
+    },
+    "first_name": {
+      "type": ["string", "null"]
+    },
+    "last_name": {
+      "type": ["string", "null"]
+    },
+    "phone_number": {
+      "type": ["string", "null"]
+    },
+    "current_balance": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "current_units": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "created_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "timestamp with time zone (ISO 8601 when serialized)"
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "timestamp with time zone (ISO 8601 when serialized)"
+    },
+    "cooperate_id": {
+      "type": ["integer", "null"],
+      "description": "integer (column name as in database)"
+    }
+  },
+  "additionalProperties": true
+}

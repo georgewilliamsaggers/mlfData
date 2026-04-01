@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mlfSavings.local/schemas/integration_loans.json",
+  "title": "partner_schema.integration_loans",
+  "description": "Row shape for the integration_loans view (PostgreSQL types mapped for typical node-pg / JSON output). USER-DEFINED columns are usually strings when serialized.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["integer", "null"],
+      "description": "integer"
+    },
+    "client_id": {
+      "type": ["integer", "null"],
+      "description": "integer"
+    },
+    "locked_amount": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "current_amount": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "percentage_locked": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "reference_id": {
+      "type": ["string", "null"]
+    },
+    "status": {
+      "type": ["string", "null"],
+      "description": "PostgreSQL enum / USER-DEFINED; serialized as string"
+    },
+    "created_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "timestamp with time zone (ISO 8601 when serialized)"
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "timestamp with time zone (ISO 8601 when serialized)"
+    }
+  },
+  "additionalProperties": true
+}

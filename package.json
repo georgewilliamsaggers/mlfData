@@ -1,0 +1,24 @@
+{
+  "name": "mlf-partner-db",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "scratch": "node index.js",
+    "query": "node database/hobbiton/query.js",
+    "job:daily-client": "node jobs/dailyClient.js",
+    "job:daily-trans": "node jobs/dailyTrans.js",
+    "job:daily-active-users": "node jobs/dailyActiveUsers.js",
+    "job:daily-transaction-value-metrics": "node jobs/dailyTransactionValueMetrics.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "node-cron": "^3.0.3",
+    "openai": "^4.77.0",
+    "pg": "^8.13.1"
+  }
+}

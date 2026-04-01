@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mlfSavings.local/schemas/integration_accounts.json",
+  "title": "partner_schema.integration_accounts",
+  "description": "Row shape for the integration_accounts view (PostgreSQL types mapped for typical node-pg / JSON output).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["integer", "null"],
+      "description": "integer"
+    },
+    "client_id": {
+      "type": ["integer", "null"],
+      "description": "integer"
+    },
+    "account_type": {
+      "type": ["integer", "null"],
+      "description": "integer"
+    },
+    "current_balance": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "current_units": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "matured_units": {
+      "type": ["string", "number", "null"],
+      "description": "numeric; node-pg often returns NUMERIC as string"
+    },
+    "created_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "timestamp with time zone (ISO 8601 when serialized)"
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "timestamp with time zone (ISO 8601 when serialized)"
+    }
+  },
+  "additionalProperties": true
+}
