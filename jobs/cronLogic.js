@@ -54,4 +54,13 @@ export function scheduleDailyJobs() {
   console.log(
     `[cron] Scheduled daily at 00:00 (${tz}): dailyClient + dailyTrans + dailyActiveUsers + dailyTransactionValueMetrics`
   );
+
+  cron.schedule(
+    "*/15 * * * *",
+    () => {
+      console.log("CRON alive!");
+    },
+    { timezone: tz }
+  );
+  console.log(`[cron] Heartbeat every 15 min (${tz})`);
 }
