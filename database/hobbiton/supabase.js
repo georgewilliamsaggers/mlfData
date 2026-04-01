@@ -23,7 +23,7 @@ export function supabaseEnvStatus() {
   return {
     hasUrl: Boolean(process.env.SUPABASE_URL?.trim()),
     hasServiceRoleKey: Boolean(getServiceRoleKey()),
-    envFilePath: "project root .env",
+    hint: "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (Railway Variables or .env)",
   };
 }
 

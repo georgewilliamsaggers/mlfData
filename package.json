@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
-    "scratch": "node index.js",
     "query": "node database/hobbiton/query.js",
     "job:daily-client": "node jobs/dailyClient.js",
     "job:daily-trans": "node jobs/dailyTrans.js",

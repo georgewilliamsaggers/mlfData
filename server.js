@@ -15,6 +15,15 @@ const port = Number(process.env.PORT || 3000);
 app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "1mb" }));
 
+app.get("/", (req, res) => {
+  res.json({
+    ok: true,
+    service: "mlf-partner-db",
+    health: "/health",
+    time: new Date().toISOString(),
+  });
+});
+
 app.get("/health", (req, res) => {
   res.json({
     ok: true,
@@ -80,7 +89,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || "Internal error" });
 });
 
-app.listen(port, () => {
-  console.log(`HTTP listening on http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`HTTP listening on 0.0.0.0:${port}`);
   scheduleDailyJobs();
 });
