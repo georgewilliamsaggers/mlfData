@@ -8,6 +8,7 @@ import {
 import { scheduleDailyJobs } from "./jobs/cronLogic.js";
 import { chatWithAgent } from "./services/chatAgent.js";
 import { getClientSnapshot } from "./services/clientSnapshot.js";
+import { getActiveUserUsageLive } from "./services/activeUserUsageLive.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -51,6 +52,19 @@ app.get("/api/data/clientSnapshot", async (req, res, next) => {
     next(err);
   }
 });
+
+/** Active-user histogram (rolling N days ending **now** — not the cron/midnight window). */
+const ACTIVE_USAGE_DAYS = [7, 30, 60, 90];
+for (const days of ACTIVE_USAGE_DAYS) {
+  app.get(`/api/data/${days}`, async (req, res, next) => {
+    try {
+      const data = await getActiveUserUsageLive(days);
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  });
+}
 
 /** Example metric: total clients (read-only). */
 app.get("/api/metrics/clients/count", async (req, res, next) => {
