@@ -9,6 +9,7 @@ import { scheduleDailyJobs } from "./jobs/cronLogic.js";
 import { chatWithAgent } from "./services/chatAgent.js";
 import { getClientSnapshot } from "./services/clientSnapshot.js";
 import { getActiveUserUsageLive } from "./services/activeUserUsageLive.js";
+import { getHourlyClientsWithBalanceLast72Hours } from "./services/hourlyClientsWithBalanceApi.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -49,6 +50,20 @@ app.get("/api/data/clientSnapshot", async (req, res, next) => {
     const data = await getClientSnapshot();
     res.json(data);
   } catch (err) {
+    next(err);
+  }
+});
+
+/** Supabase `hourly_clients_with_balance`: last 72 hours (hour bucket + clients per row). */
+app.get("/api/data/hourlyClientsWithBalance", async (req, res, next) => {
+  try {
+    const data = await getHourlyClientsWithBalanceLast72Hours();
+    res.json(data);
+  } catch (err) {
+    if (err.statusCode === 503) {
+      res.status(503).json({ error: err.message || "Supabase not configured" });
+      return;
+    }
     next(err);
   }
 });
