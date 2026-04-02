@@ -12,7 +12,8 @@
     "job:daily-client": "node jobs/dailyClient.js",
     "job:daily-trans": "node jobs/dailyTrans.js",
     "job:daily-active-users": "node jobs/dailyActiveUsers.js",
-    "job:daily-transaction-value-metrics": "node jobs/dailyTransactionValueMetrics.js"
+    "job:daily-transaction-value-metrics": "node jobs/dailyTransactionValueMetrics.js",
+    "job:hourly-clients-balance": "node jobs/hourlyClientsWithBalance.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

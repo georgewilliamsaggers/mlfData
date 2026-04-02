@@ -4,6 +4,7 @@ import { runDailyClient } from "./dailyClient.js";
 import { runDailyTrans } from "./dailyTrans.js";
 import { runDailyActiveUsers } from "./dailyActiveUsers.js";
 import { runDailyTransactionValueMetrics } from "./dailyTransactionValueMetrics.js";
+import { runHourlyClientsWithBalance } from "./hourlyClientsWithBalance.js";
 
 /**
  * Runs every day at 00:00 in {@link BUSINESS_TIMEZONE} (default Central Africa / Harare).
@@ -63,4 +64,18 @@ export function scheduleDailyJobs() {
     { timezone: tz }
   );
   console.log(`[cron] Heartbeat every 15 min (${tz})`);
+
+  cron.schedule(
+    "0 * * * *",
+    async () => {
+      try {
+        await runHourlyClientsWithBalance();
+        console.log("[cron] hourlyClientsWithBalance done");
+      } catch (err) {
+        console.error("[cron] hourlyClientsWithBalance failed:", err.message);
+      }
+    },
+    { timezone: tz }
+  );
+  console.log(`[cron] Hourly clients-with-balance at :00 each hour (${tz})`);
 }

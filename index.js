@@ -4,7 +4,7 @@ import { query, runQuery } from "./database/hobbiton/index.js";
 
 
 // Pick one, e.g.:
-await query(sqlIntegrationTransactions);
+await query("SELECT * FROM integration_accounts limit 1");
 
 // await query(sqlIntegrationClients);
 // await query(sqlIntegrationTransactions);
