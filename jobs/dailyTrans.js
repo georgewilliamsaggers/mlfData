@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  getPgSchema,
   getSupabaseAdmin,
   isSupabaseConfigured,
   runQuery,
@@ -14,6 +15,7 @@ import { BUSINESS_TIMEZONE, reportingForDate } from "./businessTimezone.js";
  * $1 = IANA timezone: [local midnight yesterday, local midnight today) = day just finished.
  */
 export function buildDailyTransSql() {
+  const s = getPgSchema();
   return `
 WITH bounds AS (
   SELECT
@@ -27,7 +29,7 @@ SELECT
   COUNT(*) FILTER (WHERE LOWER(TRIM(type::text)) IN ('deposit'))::text AS total_deposit_count,
   COALESCE(SUM(CASE WHEN LOWER(TRIM(type::text)) IN ('withdraw', 'withdrawal') THEN COALESCE(amount::numeric, 0) ELSE 0 END), 0)::float8::text AS total_withdraw_value,
   COUNT(*) FILTER (WHERE LOWER(TRIM(type::text)) IN ('withdraw', 'withdrawal'))::text AS total_withdraw_count
-FROM partner_schema.integration_transactions
+FROM ${s}.integration_transactions
 WHERE LOWER(TRIM(status::text)) = 'successful'
   AND date >= (SELECT day_start FROM bounds)
   AND date < (SELECT day_end FROM bounds)

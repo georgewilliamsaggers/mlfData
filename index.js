@@ -13,3 +13,6 @@ await query("SELECT * FROM integration_accounts limit 1");
 // Example without console logging:
 // const result = await runQuery(sqlIntegrationLoans);
 // console.log(result.rows);
+
+
+// node index.js

@@ -1,17 +1,18 @@
-import { runQuery } from "../database/hobbiton/index.js";
+import { getPgSchema, runQuery } from "../database/hobbiton/index.js";
 
 /**
  * Rolling window **[now − N days, now)** (not aligned to midnight). Same universe and
  * histogram shape as the daily cron job’s usage metrics, but for “as of this instant”.
  */
 export function buildActiveUserUsageLiveSql() {
+  const s = getPgSchema();
   return `
 WITH client_counts AS (
   SELECT
     c.id,
     COUNT(t.id)::bigint AS txn_count
-  FROM partner_schema.integration_clients c
-  LEFT JOIN partner_schema.integration_transactions t
+  FROM ${s}.integration_clients c
+  LEFT JOIN ${s}.integration_transactions t
     ON t.client_id = c.id
     AND LOWER(TRIM(t.status::text)) = 'successful'
     AND t.date >= NOW() - ($1::integer * interval '1 day')

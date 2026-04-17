@@ -1,11 +1,14 @@
 import OpenAI from "openai";
-import { runQuery } from "../database/hobbiton/index.js";
+import { getPgSchema, runQuery } from "../database/hobbiton/index.js";
 import { isReadOnlySelect } from "../lib/sqlGuard.js";
 
-const SYSTEM = `You are a data assistant for a PostgreSQL read-only partner database.
-Schema partner_schema has views: integration_accounts, integration_clients, integration_transactions, integration_loans.
-Always use partner_schema-qualified names (e.g. partner_schema.integration_clients).
+function buildChatSystemPrompt() {
+  const s = getPgSchema();
+  return `You are a data assistant for a PostgreSQL read-only partner database.
+Schema ${s} has views: integration_accounts, integration_clients, integration_transactions, integration_loans.
+Always use ${s}-qualified names (e.g. ${s}.integration_clients).
 Only SELECT (or WITH … SELECT) queries are allowed. Prefer aggregates and LIMIT for exploration.`;
+}
 
 export async function chatWithAgent(userMessage, history = []) {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -16,7 +19,7 @@ export async function chatWithAgent(userMessage, history = []) {
   const openai = new OpenAI({ apiKey });
 
   const messages = [
-    { role: "system", content: SYSTEM },
+    { role: "system", content: buildChatSystemPrompt() },
     ...history.map((m) => ({ role: m.role, content: m.content })),
     { role: "user", content: userMessage },
   ];

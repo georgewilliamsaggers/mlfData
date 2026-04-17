@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  getPgSchema,
   getSupabaseAdmin,
   isSupabaseConfigured,
   runQuery,
@@ -13,27 +14,33 @@ const TABLE_CLIENTS = "hourly_clients_with_balance";
 const TABLE_FUND = "hourly_fund_amount";
 
 /** \`for_hour\` = start of the clock hour in $1 when the cron runs (same as fund job). */
-export const HOURLY_CLIENTS_WITH_BALANCE_SQL = `
+export function buildHourlyClientsWithBalanceSql() {
+  const s = getPgSchema();
+  return `
 WITH bounds AS (
   SELECT (date_trunc('hour', now() AT TIME ZONE $1)::timestamp AT TIME ZONE $1) AS for_hour
 )
 SELECT
   COUNT(*)::text AS clients,
   (SELECT for_hour::text FROM bounds) AS for_hour
-FROM partner_schema.integration_clients
+FROM ${s}.integration_clients
 WHERE COALESCE(current_balance, 0) > 0
 `.trim();
+}
 
 /** Sum of all \`current_balance\`; \`for_hour\` = start of current clock hour in $1 (IANA). */
-export const HOURLY_FUND_AMOUNT_SQL = `
+export function buildHourlyFundAmountSql() {
+  const s = getPgSchema();
+  return `
 WITH bounds AS (
   SELECT (date_trunc('hour', now() AT TIME ZONE $1)::timestamp AT TIME ZONE $1) AS for_hour
 )
 SELECT
   COALESCE(SUM(COALESCE(c.current_balance, 0)), 0)::float8::text AS fund_value,
   (SELECT for_hour::text FROM bounds) AS for_hour
-FROM partner_schema.integration_clients c
+FROM ${s}.integration_clients c
 `.trim();
+}
 
 function toBigIntCol(value) {
   if (value == null || value === "") return null;
@@ -49,7 +56,7 @@ function toDouble(value) {
 
 /** Partner Postgres → Supabase \`hourly_fund_amount\` (\`fund_value\` = sum of balances, \`for_hour\` = cron hour in business TZ). */
 export async function runHourlyFundAmount(timezone = BUSINESS_TIMEZONE) {
-  const result = await runQuery(HOURLY_FUND_AMOUNT_SQL, [timezone]);
+  const result = await runQuery(buildHourlyFundAmountSql(), [timezone]);
   const row = result.rows[0] ?? {};
   const fundValue = toDouble(row.fund_value);
   const forHour = row.for_hour ?? null;
@@ -78,7 +85,7 @@ export async function runHourlyFundAmount(timezone = BUSINESS_TIMEZONE) {
 /** Partner Postgres → Supabase \`hourly_clients_with_balance\` (\`clients\`, \`for_hour\`), then fund row. */
 export async function runHourlyClientsWithBalance() {
   const tz = BUSINESS_TIMEZONE;
-  const result = await runQuery(HOURLY_CLIENTS_WITH_BALANCE_SQL, [tz]);
+  const result = await runQuery(buildHourlyClientsWithBalanceSql(), [tz]);
   const row = result.rows[0] ?? {};
   const clients = toBigIntCol(row.clients);
   const forHour = row.for_hour ?? null;

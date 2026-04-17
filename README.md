@@ -1,6 +1,6 @@
 # mlf-partner-db
 
-Express API plus scheduled daily jobs: read partner PostgreSQL (`partner_schema` views), write aggregates to Supabase.
+Express API plus scheduled daily jobs: read PostgreSQL (`PGSCHEMA` / `integration_*` views, default `partner_schema`), write aggregates to Supabase.
 
 ## Run locally
 
@@ -17,11 +17,11 @@ npm start
 ## Railway
 
 1. **New project → Deploy from GitHub** (or deploy this repo).
-2. **Variables**: copy keys from `.env.example` and set values in Railway (no quotes needed for simple values).
-   - **PORT** is injected by Railway; do not set it unless you know you need to override.
-   - Set **PG\*** for the partner database and **SUPABASE\_\*** for Supabase. Without them, API routes that query Postgres or jobs that upsert to Supabase will fail or skip writes.
-3. **Start command**: `npm start` (default from `package.json`).
-4. **Health check path**: `/health` (optional in Railway service settings).
+2. **Variables**: open the service **Variables** tab. Railway can **suggest or import** keys from **`.env.example`** in the repo (or paste the file into **Raw Editor** and fill secrets). Use the same names as in `.env.example`.
+   - **PORT** is usually injected by Railway; leave blank unless you override.
+   - Set **PG\*** (including **PGSCHEMA**, **PGSSL** for managed Postgres) and **SUPABASE\_\*** for jobs and admin checks.
+3. **Start command**: `npm start` (also set in **`railway.toml`**).
+4. **Health check**: **`/health`** (set in **`railway.toml`** `healthcheckPath`; confirm in service settings if needed).
 
 The app listens on **`0.0.0.0`** and **`process.env.PORT`** so it works in Railway’s container network.
 

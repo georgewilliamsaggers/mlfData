@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import {
+  getPgSchema,
   runQuery,
   verifySupabaseAdminConnection,
 } from "./database/hobbiton/index.js";
@@ -84,8 +85,9 @@ for (const days of ACTIVE_USAGE_DAYS) {
 /** Example metric: total clients (read-only). */
 app.get("/api/metrics/clients/count", async (req, res, next) => {
   try {
+    const s = getPgSchema();
     const result = await runQuery(
-      `SELECT COUNT(*)::text AS n FROM partner_schema.integration_clients`
+      `SELECT COUNT(*)::text AS n FROM ${s}.integration_clients`
     );
     res.json({ count: result.rows[0]?.n ?? null });
   } catch (err) {

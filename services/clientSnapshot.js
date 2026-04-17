@@ -1,5 +1,5 @@
 import { runQuery } from "../database/hobbiton/index.js";
-import { CLIENT_SNAPSHOT_SQL } from "../jobs/dailyClient.js";
+import { buildClientSnapshotSql } from "../jobs/dailyClient.js";
 
 /**
  * Live client metrics (no persistence). Used by GET /api/data/clientSnapshot.
@@ -7,7 +7,7 @@ import { CLIENT_SNAPSHOT_SQL } from "../jobs/dailyClient.js";
 export async function getClientSnapshot() {
   const dateKey = new Date().toISOString().slice(0, 10);
 
-  const result = await runQuery(CLIENT_SNAPSHOT_SQL);
+  const result = await runQuery(buildClientSnapshotSql());
   const row = result.rows[0] ?? {};
 
   return {

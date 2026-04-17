@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  getPgSchema,
   getSupabaseAdmin,
   isSupabaseConfigured,
   runQuery,
@@ -9,14 +10,17 @@ import {
 } from "../database/hobbiton/index.js";
 import { BUSINESS_TIMEZONE, reportingForDate } from "./businessTimezone.js";
 
-export const CLIENT_SNAPSHOT_SQL = `
+export function buildClientSnapshotSql() {
+  const s = getPgSchema();
+  return `
 SELECT
   COUNT(*)::text AS total_clients,
   COUNT(*) FILTER (WHERE COALESCE(current_balance, 0) > 0)::text AS clients_with_balance_gt_zero,
   COUNT(*) FILTER (WHERE COALESCE(current_balance, 0) = 0)::text AS clients_with_zero_balance,
   COALESCE(SUM(COALESCE(current_balance, 0)), 0)::float8::text AS total_fund_value
-FROM partner_schema.integration_clients
+FROM ${s}.integration_clients
 `.trim();
+}
 
 function toBigIntCol(value) {
   if (value == null || value === "") return null;
@@ -32,7 +36,7 @@ function toDouble(value) {
 
 /** Partner Postgres → Supabase `dailyClients` (+ for_date = local day that just ended). */
 export async function runDailyClient(
-  sql = CLIENT_SNAPSHOT_SQL,
+  sql = buildClientSnapshotSql(),
   timezone = BUSINESS_TIMEZONE
 ) {
   const forDate = reportingForDate(timezone);

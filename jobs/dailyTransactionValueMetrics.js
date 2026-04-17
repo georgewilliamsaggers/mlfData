@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  getPgSchema,
   getSupabaseAdmin,
   isSupabaseConfigured,
   runQuery,
@@ -51,6 +52,7 @@ function buildBucketDefsValuesSql() {
  * Buckets: 50 increments 0–1000, then 250 increments to 2500, then 2500+ (all buckets in JSON).
  */
 export function buildTransactionValueMetricsSql() {
+  const s = getPgSchema();
   const bucketCase = buildAmountBucketCaseSql("amt");
   const bucketValues = buildBucketDefsValuesSql();
 
@@ -64,7 +66,7 @@ day_tx AS (
   SELECT
     t.amount::numeric AS amt,
     LOWER(TRIM(t.type::text)) AS typ
-  FROM partner_schema.integration_transactions t
+  FROM ${s}.integration_transactions t
   WHERE LOWER(TRIM(t.status::text)) = 'successful'
     AND t.amount IS NOT NULL
     AND t.date >= (SELECT day_start FROM bounds)

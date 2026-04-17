@@ -58,7 +58,11 @@ function getPool() {
   return pool;
 }
 
-function getSchema() {
+/**
+ * Schema for `integration_*` views (e.g. `mlf_schema` on DigitalOcean, or `partner_schema`).
+ * Set `PGSCHEMA` in `.env`. Identifier-safe only.
+ */
+export function getPgSchema() {
   const schema = process.env.PGSCHEMA || "partner_schema";
   if (!/^[\w]+$/.test(schema)) {
     throw new Error("PGSCHEMA must contain only letters, digits, and underscores");
@@ -67,7 +71,7 @@ function getSchema() {
 }
 
 /**
- * Run SQL with partner_schema on the search_path. Returns the full node-pg query result
+ * Run SQL with `PGSCHEMA` first on `search_path`, and qualify objects as `${getPgSchema()}.*` in queries.
  * (rows, rowCount, fields, command, etc.).
  *
  * @param {string} sqlText
@@ -77,7 +81,7 @@ function getSchema() {
 export async function runQuery(sqlText, params) {
   const client = await getPool().connect();
   try {
-    await client.query(`SET search_path TO ${getSchema()}, public`);
+    await client.query(`SET search_path TO ${getPgSchema()}, public`);
     if (params !== undefined) {
       return await client.query(sqlText, params);
     }

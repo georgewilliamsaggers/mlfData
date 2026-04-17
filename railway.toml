@@ -1,0 +1,6 @@
+# Railway config-as-code: https://docs.railway.com/config-as-code
+# Set secrets in the service Variables UI (see root .env.example for all keys).
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"

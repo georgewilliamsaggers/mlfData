@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  getPgSchema,
   getSupabaseAdmin,
   isSupabaseConfigured,
   runQuery,
@@ -17,7 +18,7 @@ const USAGE_TABLE =
 /**
  * Rolling window ending at local midnight (start of “today” in BUSINESS_TIMEZONE):
  * [local midnight today - N days, local midnight today). Successful txs per client, then histogram.
- * Universe = all rows in partner_schema.integration_clients (clients with 0 txs appear in bucket 0).
+ * Universe = all rows in PGSCHEMA.integration_clients (clients with 0 txs appear in bucket 0).
  *
  * Supabase \`usage\`: active_user_7 / _30 / _60 / _90 (jsonb) + for_date (business “as of” day).
  * for_date = local calendar day that just ended (not created_at). Table: SUPABASE_USAGE_TABLE (default \`usage\`).
@@ -25,13 +26,14 @@ const USAGE_TABLE =
  * Each jsonb column: [{ "transactions_made": 0, "count": 123 }, ...]
  */
 export function buildActiveUserDistributionSql() {
+  const s = getPgSchema();
   return `
 WITH client_counts AS (
   SELECT
     c.id,
     COUNT(t.id)::bigint AS txn_count
-  FROM partner_schema.integration_clients c
-  LEFT JOIN partner_schema.integration_transactions t
+  FROM ${s}.integration_clients c
+  LEFT JOIN ${s}.integration_transactions t
     ON t.client_id = c.id
     AND LOWER(TRIM(t.status::text)) = 'successful'
     AND t.date >= (SELECT (date_trunc('day', now() AT TIME ZONE $1)::timestamp AT TIME ZONE $1) - ($2::integer * interval '1 day'))
