@@ -79,3 +79,7 @@ export function scheduleDailyJobs() {
   );
   console.log(`[cron] Hourly clients-with-balance at :00 each hour (${tz})`);
 }
+
+
+runDailyActiveUsers()
+// node jobs/cronLogic.js

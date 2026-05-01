@@ -11,12 +11,15 @@ import { chatWithAgent } from "./services/chatAgent.js";
 import { getClientSnapshot } from "./services/clientSnapshot.js";
 import { getActiveUserUsageLive } from "./services/activeUserUsageLive.js";
 import { getHourlyClientsWithBalanceLast72Hours } from "./services/hourlyClientsWithBalanceApi.js";
+import tcpIngressRouter from "./features/tcpIngress/tcpRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
 app.use(cors({ origin: "*" }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "5mb" }));
+
+app.use("/api/tcp", tcpIngressRouter);
 
 app.get("/", (req, res) => {
   res.json({
@@ -124,3 +127,6 @@ app.listen(port, "0.0.0.0", () => {
   console.log(`HTTP listening on 0.0.0.0:${port}`);
   scheduleDailyJobs();
 });
+
+
+// node server.js
