@@ -14,9 +14,7 @@ export class TcpIngressValidationError extends Error {
 }
 
 /**
- * Table `tcp` only has `streamed_data` and `json`. `deviceId` is stored inside `json`
- * alongside parsed `jsonData` when present.
- *
+ * Maps request fields to columns: textData→streamed_data, jsonData→json, deviceId→Device_Id.
  * @param {{ textData?: unknown, jsonData?: unknown, deviceId?: unknown }} body
  */
 export async function saveTcpIngress(body) {
@@ -31,30 +29,24 @@ export async function saveTcpIngress(body) {
       ? null
       : String(body.textData);
 
-  const deviceId =
+  /** Postgres column is quoted `"Device_Id"` — PostgREST expects this key casing. */
+  const Device_Id =
     body.deviceId === undefined || body.deviceId === null
       ? null
       : String(body.deviceId);
 
   let jsonColumn = null;
-  if (deviceId !== null || body.jsonData !== undefined) {
-    jsonColumn = {};
-    if (deviceId !== null) {
-      jsonColumn.deviceId = deviceId;
-    }
-    if (body.jsonData !== undefined && body.jsonData !== null) {
-      if (typeof body.jsonData === "string") {
-        try {
-          jsonColumn.data = JSON.parse(body.jsonData);
-        } catch {
-          throw new TcpIngressValidationError("jsonData must be valid JSON when sent as a string");
-        }
-      } else {
-        jsonColumn.data = body.jsonData;
+  if (body.jsonData !== undefined && body.jsonData !== null) {
+    if (typeof body.jsonData === "string") {
+      try {
+        jsonColumn = JSON.parse(body.jsonData);
+      } catch {
+        throw new TcpIngressValidationError(
+          "jsonData must be valid JSON when sent as a string"
+        );
       }
-    }
-    if (Object.keys(jsonColumn).length === 0) {
-      jsonColumn = null;
+    } else {
+      jsonColumn = body.jsonData;
     }
   }
 
@@ -62,6 +54,7 @@ export async function saveTcpIngress(body) {
   const { error } = await supabase.from(TABLE).insert({
     streamed_data: textData,
     json: jsonColumn,
+    Device_Id,
   });
 
   if (error) {

@@ -23,6 +23,11 @@ function timingSafeEqualString(expected, supplied) {
  * or `Authorization: Bearer <key>`.
  */
 export function requireExternalApiKey(req, res, next) {
+  if (req.method === "OPTIONS") {
+    next();
+    return;
+  }
+
   const configured = process.env.EXTERNAL_API_KEY?.trim();
   if (!configured) {
     res

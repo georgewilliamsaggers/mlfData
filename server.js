@@ -12,19 +12,21 @@ import { getClientSnapshot } from "./services/clientSnapshot.js";
 import { getActiveUserUsageLive } from "./services/activeUserUsageLive.js";
 import { getHourlyClientsWithBalanceLast72Hours } from "./services/hourlyClientsWithBalanceApi.js";
 import tcpIngressRouter from "./features/tcpIngress/tcpRoutes.js";
+import { requireExternalApiKey } from "./features/tcpIngress/middleware/requireExternalApiKey.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
 app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "5mb" }));
+app.use(requireExternalApiKey);
 
 app.use("/api/tcp", tcpIngressRouter);
 
 app.get("/", (req, res) => {
   res.json({
     ok: true,
-    service: "mlf-partner-db",
+    service: "service-ok",
     health: "/health",
     time: new Date().toISOString(),
   });
@@ -33,7 +35,7 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.json({
     ok: true,
-    service: "mlf-partner-db",
+    service: "service-ok",
     time: new Date().toISOString(),
   });
 });

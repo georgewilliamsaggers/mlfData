@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { requireExternalApiKey } from "./middleware/requireExternalApiKey.js";
 import {
   saveTcpIngress,
   TcpIngressValidationError,
@@ -8,11 +7,10 @@ import {
 const router = Router();
 
 /**
- * POST /ingest (mounted under /api/tcp in server)
- * Headers: X-API-Key or Authorization: Bearer
+ * POST /ingest (mounted under /api/tcp in server). API key enforced globally in server.js.
  * Body: { textData?, jsonData?, deviceId? } — all optional / nullable
  */
-router.post("/ingest", requireExternalApiKey, async (req, res, next) => {
+router.post("/ingest", async (req, res, next) => {
   try {
     const body =
       req.body && typeof req.body === "object" && !Array.isArray(req.body)
