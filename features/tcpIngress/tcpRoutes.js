@@ -8,7 +8,16 @@ const router = Router();
 
 /**
  * POST /ingest (mounted under /api/tcp in server). API key enforced globally in server.js.
- * Body: { textData?, jsonData?, deviceId? } — all optional / nullable
+ * Body:
+ * {
+ *   protocol: "jt808",
+ *   receivedAt: string,
+ *   connectionId: string,
+ *   remoteAddress: string,
+ *   deviceId: string | null,
+ *   originalMessageHex: string,
+ *   decodedMessage: JSON
+ * }
  */
 router.post("/ingest", async (req, res, next) => {
   try {
@@ -18,9 +27,13 @@ router.post("/ingest", async (req, res, next) => {
         : {};
 
     await saveTcpIngress({
-      textData: body.textData,
-      jsonData: body.jsonData,
+      protocol: body.protocol,
+      receivedAt: body.receivedAt,
+      connectionId: body.connectionId,
+      remoteAddress: body.remoteAddress,
       deviceId: body.deviceId,
+      originalMessageHex: body.originalMessageHex,
+      decodedMessage: body.decodedMessage,
     });
 
     res.status(200).json({ ok: true, message: "saved ok" });

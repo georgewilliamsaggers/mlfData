@@ -127,6 +127,8 @@ app.use((err, req, res, next) => {
 
 app.listen(port, "0.0.0.0", () => {
   console.log(`HTTP listening on 0.0.0.0:${port}`);
+  console.log(`Local: http://localhost:${port}`);
+  console.log(`TCP ingest: http://localhost:${port}/api/tcp/ingest`);
   scheduleDailyJobs();
 });
 
