@@ -19,9 +19,7 @@ const port = Number(process.env.PORT || 3000);
 
 app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "5mb" }));
-app.use(requireExternalApiKey);
-
-app.use("/api/tcp", tcpIngressRouter);
+app.use("/api/tcp", requireExternalApiKey, tcpIngressRouter);
 
 app.get("/", (req, res) => {
   res.json({
