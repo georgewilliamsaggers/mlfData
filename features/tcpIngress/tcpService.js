@@ -96,10 +96,12 @@ export async function saveTcpIngress(body) {
  * - created_at >= startDateTime
  * - created_at <= endDateTime
  * - deviceId exact match
+ * - typeId exact match
  * @param {{
  *   startDateTime?: string,
  *   endDateTime?: string,
- *   deviceId?: string
+ *   deviceId?: string,
+ *   typeId?: string | number
  * }} filters
  */
 export async function getTcpIngressRecords(filters = {}) {
@@ -115,6 +117,12 @@ export async function getTcpIngressRecords(filters = {}) {
     typeof filters.endDateTime === "string" ? filters.endDateTime.trim() : "";
   const deviceId =
     typeof filters.deviceId === "string" ? filters.deviceId.trim() : "";
+  const typeIdRaw =
+    typeof filters.typeId === "number"
+      ? String(filters.typeId)
+      : typeof filters.typeId === "string"
+        ? filters.typeId.trim()
+        : "";
 
   if (startDateTime && Number.isNaN(Date.parse(startDateTime))) {
     throw new TcpIngressValidationError("startDateTime must be a valid date-time");
@@ -122,6 +130,10 @@ export async function getTcpIngressRecords(filters = {}) {
   if (endDateTime && Number.isNaN(Date.parse(endDateTime))) {
     throw new TcpIngressValidationError("endDateTime must be a valid date-time");
   }
+  if (typeIdRaw && !/^\d+$/.test(typeIdRaw)) {
+    throw new TcpIngressValidationError("typeId must be an integer");
+  }
+  const typeId = typeIdRaw ? Number.parseInt(typeIdRaw, 10) : null;
 
   let query = getSupabaseAdmin().from(TABLE).select("*").order("id", { ascending: false });
 
@@ -133,6 +145,9 @@ export async function getTcpIngressRecords(filters = {}) {
   }
   if (deviceId) {
     query = query.eq("deviceId", deviceId);
+  }
+  if (typeId !== null) {
+    query = query.eq("typeId", typeId);
   }
 
   const { data, error } = await query;

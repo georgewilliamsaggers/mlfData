@@ -61,6 +61,7 @@ router.post("/ingest", async (req, res, next) => {
  * - startDateTime: ISO date-time string (filters created_at >= startDateTime)
  * - endDateTime: ISO date-time string (filters created_at <= endDateTime)
  * - deviceId: exact device match
+ * - typeId: exact message type id match
  */
 router.get("/ingest", async (req, res, next) => {
   try {
@@ -74,6 +75,7 @@ router.get("/ingest", async (req, res, next) => {
           ? req.query.endDateTime
           : undefined,
       deviceId: typeof req.query.deviceId === "string" ? req.query.deviceId : undefined,
+      typeId: typeof req.query.typeId === "string" ? req.query.typeId : undefined,
     });
 
     res.status(200).json({ ok: true, count: records.length, records });
