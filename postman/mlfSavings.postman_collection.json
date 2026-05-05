@@ -1,0 +1,184 @@
+{
+  "info": {
+    "_postman_id": "a9adf465-e8e9-4b38-bf95-efec2e17d173",
+    "name": "mlfSavings API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for TCP ingest APIs."
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Service health endpoint. No API key required."
+      },
+      "response": []
+    },
+    {
+      "name": "TCP Ingest",
+      "item": [
+        {
+          "name": "POST Ingest Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{externalApiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"protocol\": \"jt808\",\n  \"receivedAt\": \"2026-05-05T08:00:00Z\",\n  \"connectionId\": \"conn-123\",\n  \"remoteAddress\": \"10.0.0.12:64533\",\n  \"deviceId\": \"1234\",\n  \"originalMessageHex\": \"7e 02 00 ... 7e\",\n  \"decodedMessage\": {\n    \"header\": {\n      \"messageId\": \"0x0200\"\n    },\n    \"body\": {\n      \"parsed\": {\n        \"type\": \"location\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tcp/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tcp",
+                "ingest"
+              ]
+            },
+            "description": "Ingest a decoded TCP payload into tcpV2. `type` and `typeId` are derived automatically from decodedMessage.header.messageId."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Ingest Records (All)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{externalApiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tcp/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tcp",
+                "ingest"
+              ]
+            },
+            "description": "Returns all records when no filters are provided."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Ingest Records (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{externalApiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tcp/ingest?deviceId=1234&typeId=1&startDateTime=2026-05-04T00:00:00Z&endDateTime=2026-05-05T23:59:59Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tcp",
+                "ingest"
+              ],
+              "query": [
+                {
+                  "key": "deviceId",
+                  "value": "1234"
+                },
+                {
+                  "key": "typeId",
+                  "value": "1",
+                  "description": "0=Unknown, 1=Location Ping, 2=Heartbeat, 3=Terminal authentication"
+                },
+                {
+                  "key": "startDateTime",
+                  "value": "2026-05-04T00:00:00Z"
+                },
+                {
+                  "key": "endDateTime",
+                  "value": "2026-05-05T23:59:59Z"
+                }
+              ]
+            },
+            "description": "Filter records by any combination of startDateTime, endDateTime, deviceId, and typeId."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Location Points (/inject)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{externalApiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tcp/inject?deviceId=1234&startDateTime=2026-05-05T00:00:00Z&endDateTime=2026-05-05T23:59:59Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tcp",
+                "inject"
+              ],
+              "query": [
+                {
+                  "key": "deviceId",
+                  "value": "1234"
+                },
+                {
+                  "key": "startDateTime",
+                  "value": "2026-05-05T00:00:00Z"
+                },
+                {
+                  "key": "endDateTime",
+                  "value": "2026-05-05T23:59:59Z"
+                }
+              ]
+            },
+            "description": "Location-only points endpoint. Internally filters to typeId=1 and returns simplified location point objects."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "externalApiKey",
+      "value": ""
+    }
+  ]
+}

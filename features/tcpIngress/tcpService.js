@@ -159,3 +159,64 @@ export async function getTcpIngressRecords(filters = {}) {
 
   return data ?? [];
 }
+
+/**
+ * Returns simplified location points from tcp records (typeId = 1).
+ * @param {{
+ *   startDateTime?: string,
+ *   endDateTime?: string,
+ *   deviceId?: string
+ * }} filters
+ */
+export async function getTcpLocationPoints(filters = {}) {
+  const records = await getTcpIngressRecords({
+    startDateTime: filters.startDateTime,
+    endDateTime: filters.endDateTime,
+    deviceId: filters.deviceId,
+    typeId: TYPE_ID_LOCATION_PING,
+  });
+
+  return records.map((row) => {
+    const decoded = row?.decodedMessage && typeof row.decodedMessage === "object"
+      ? row.decodedMessage
+      : {};
+    const parsed = decoded?.body?.parsed && typeof decoded.body.parsed === "object"
+      ? decoded.body.parsed
+      : {};
+    const header = decoded?.header && typeof decoded.header === "object"
+      ? decoded.header
+      : {};
+
+    const additionalItems = Array.isArray(parsed.additionalItems)
+      ? parsed.additionalItems
+      : [];
+    const findById = (id) =>
+      additionalItems.find((item) => item && typeof item === "object" && item.id === id) ?? {};
+
+    const signalItem = findById("0x30");
+    const satellitesItem = findById("0x31");
+    const temperatureItem = findById("0x51");
+    const batteryItem = findById("0xe1");
+
+    const temperatures = Array.isArray(temperatureItem.temperaturesCelsius)
+      ? temperatureItem.temperaturesCelsius
+      : [];
+
+    return {
+      deviceId: row?.deviceId ?? header?.terminalId ?? null,
+      timestamp: parsed?.timestamp ?? null,
+      location: {
+        lat: parsed?.latitude ?? null,
+        lng: parsed?.longitude ?? null,
+      },
+      speed: parsed?.speedKph ?? null,
+      heading: parsed?.directionDegrees ?? null,
+      status: Array.isArray(parsed?.statusFlags?.active) ? parsed.statusFlags.active : [],
+      alarms: Array.isArray(parsed?.alarmFlags?.active) ? parsed.alarmFlags.active : [],
+      battery: batteryItem?.batteryPercent ?? null,
+      signal: signalItem?.signalStrength ?? null,
+      satellites: satellitesItem?.satelliteCount ?? null,
+      temperature: temperatures.length > 0 ? temperatures[0] : null,
+    };
+  });
+}
